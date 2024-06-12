@@ -26,8 +26,8 @@ HCP Terraform/Enterprise API Client/SDK in Rust</p>
 
 ## 🗒️ TODO
 
-- [] [`jsonapi`](https://github.com/da-moon/tfe-oxide/issues/13) module
-- [] [`client`](https://github.com/da-moon/tfe-oxide/issues/14) module initial implementation
+- [ ] [`jsonapi`](https://github.com/da-moon/tfe-oxide/issues/13) module
+- [ ] [`client`](https://github.com/da-moon/tfe-oxide/issues/14) module initial implementation
 
 
 <div align="center" id="madewithrust">
