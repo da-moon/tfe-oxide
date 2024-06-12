@@ -1,0 +1,138 @@
+---
+name: release
+"on":
+  push:
+    paths:
+      - "**.rs"
+  workflow_dispatch:
+env:
+  GITHUB_TOKEN: "${{ github.token }}"
+  # yamllint disable rule:line-length
+  CONVCO_URL: "https://github.com/convco/convco/releases/latest/download/convco-ubuntu.zip"
+  # yamllint enable rule:line-length
+jobs:
+  # yamllint disable rule:line-length
+  # ─── SNIPPETS ─────────────────────────────────────────────────────────────────
+  # 1. simulate with 'nektos/act'
+  # act --secret GITHUB_TOKEN="$(gh auth token)" --env-file "" --job nightly-archives --artifact-server-path "./tmp/artifacts" "workflow_dispatch" ;
+  # act --secret GITHUB_TOKEN="$(gh auth token)" --env-file "" --artifact-server-path "./tmp/artifacts" ;
+  # ──────────────────────────────────────────────────────────────────────────────
+  # yamllint enable rule:line-length
+  nightly-archives:
+    name: "nightly-archives"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout HEAD
+        id: checkout-head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Zipball Archive
+        id: zip-archive
+        shell: bash
+        run: |
+          set -xefuo pipefail ;
+          : "${GITHUB_REPOSITORY:?Variable not set or empty}"
+          git archive \
+            --format="zip" \
+            --output="$(basename "${GITHUB_REPOSITORY}").zip" \
+          HEAD
+      - name: Tarball Archive
+        id: tar-archive
+        shell: bash
+        run: |
+          set -xefuo pipefail ;
+          : "${GITHUB_REPOSITORY:?Variable not set or empty}"
+          git archive \
+            --format=tar.gz \
+            --output="$(basename "${GITHUB_REPOSITORY}").tar.gz" \
+          HEAD ;
+      - name: Changelog
+        id: changelog
+        shell: bash
+        run: |
+          set -xefuo pipefail
+          : "${CONVCO_URL:?Variable not set or empty}"
+          curl -sOL "${CONVCO_URL}" ;
+          unzip "convco-ubuntu.zip" ;
+          chmod +x "./convco" ;
+          rm "convco-ubuntu.zip" ;
+          ./convco changelog > CHANGELOG.md
+          ./convco changelog --max-versions 1 > RELEASE.md
+      - name: Upload
+        id: upload
+        uses: softprops/action-gh-release@v1
+        with:
+          name: nightly
+          tag_name: "nightly"
+          body_path: CHANGELOG.md
+          append_body: false
+          prerelease: true
+          generate_release_notes: false
+          files: |-
+            *.tar.gz
+            *.zip
+            CHANGELOG.md
+  # yamllint disable rule:line-length
+  # ─── SNIPPETS ─────────────────────────────────────────────────────────────────
+  # 1. simulate with 'nektos/act'
+  # act --secret GITHUB_TOKEN="$(gh auth token)" --env-file ""  --artifact-server-path "./tmp/artifacts" --eventpath <(jq --arg 'ref' 'refs/tags/v0.0.1' -ncM '{ref:$ref}') ;
+  # ──────────────────────────────────────────────────────────────────────────────
+  # yamllint enable rule:line-length
+  tagged-archives:
+    name: "tagged-archives"
+    runs-on: ubuntu-latest
+    # NOTE: Tag gating. Only run if the tag starts with "v"
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout Tag
+        id: checkout-tag
+        uses: actions/checkout@v4
+        with:
+          ref: "${{ github.ref }}"
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Zipball Archive
+        id: zip-archive
+        shell: bash
+        run: |
+          set -xefuo pipefail
+          : "${GITHUB_REPOSITORY:?Variable not set or empty}"
+          : "${GITHUB_REF_NAME:?Variable not set or empty}"
+          git archive \
+            --format=zip \
+            --output="$(basename "${GITHUB_REPOSITORY}").zip" \
+          "${GITHUB_REF_NAME}"
+      - name: Tarball Archive
+        id: tar-archive
+        shell: bash
+        run: |
+          set -xefuo pipefail
+          : "${GITHUB_REPOSITORY:?Variable not set or empty}"
+          : "${GITHUB_REF_NAME:?Variable not set or empty}"
+          git archive \
+            --format=tar.gz \
+            --output="$(basename "${GITHUB_REPOSITORY}").tar.gz" \
+          "${GITHUB_REF_NAME}" ;
+      - name: Changelog
+        id: changelog
+        shell: bash
+        run: |
+          set -xefuo pipefail
+          : "${CONVCO_URL:?Variable not set or empty}"
+          curl -sOL "${CONVCO_URL}" ;
+          unzip "convco-ubuntu.zip" ;
+          chmod +x "./convco" ;
+          rm "convco-ubuntu.zip" ;
+          ./convco changelog > CHANGELOG.md
+          ./convco changelog --max-versions 1 > RELEASE.md
+      - name: Upload
+        id: upload
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: false
+          body_path: RELEASE.md
+          files: |-
+            *.tar.gz
+            *.zip
+            CHANGELOG.md
