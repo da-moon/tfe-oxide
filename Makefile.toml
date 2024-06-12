@@ -1,0 +1,102 @@
+[env]
+# Reset rustup recursion limit because otherwise `cargo make clippy` may fail.
+# https://github.com/rust-lang/rustup.rs/blob/d35f94183601a81489bce025c2abc35cd395c909/src/toolchain.rs#L296
+RUST_RECURSION_COUNT = "0"
+#  ────────────────────────────────────────────────────────────
+[config]
+default_to_workspace = false
+min_version = "0.32.1"
+unstable_features = ["CTRL_C_HANDLING"]
+[config.modify_core_tasks]
+private = true
+namespace = "default"
+#  ────────────────────────────────────────────────────────────
+[tasks.default]
+description = "default target"
+script = '''
+cargo make --loglevel error --list-all-steps --output-format autocomplete | sed  -e 's/\s/\n/g' | sed -e '/^\s*$/d' | fzf --print0 | xargs -0 -r cargo make
+'''
+#  ────────────────────────────────────────────────────────────
+[tasks.check]
+description = "check for compilation errors"
+command = "cargo"
+args = ["check"]
+watch = true
+#  ────────────────────────────────────────────────────────────
+[tasks.clean]
+description = "Clean up"
+command = "cargo"
+args = ["clean"]
+#  ────────────────────────────────────────────────────────────
+[tasks.clippy]
+toolchain = "nightly"
+description = "Lint with Clippy"
+command = "cargo"
+args = [
+    "clippy",
+    "--all-features",
+    "--",
+    "--deny",
+    "warnings",
+    "--deny",
+    "clippy::pedantic",
+    "--deny",
+    "clippy::nursery",
+    "--allow",
+    "clippy::wildcard_imports",        # for `use seed::{prelude::*, *};`
+    "--allow",
+    "clippy::future_not_send",         # JS/WASM is single threaded
+    "--allow",
+    "clippy::used_underscore_binding", # some libraries break this rule
+    "--allow",
+    "clippy::eval_order_dependence",   # false positives
+    "--allow",
+    "clippy::vec_init_then_push",      # Vec::new() + push are used in macros in shortcuts.rs
+]
+dependencies = ["default::install-clippy"]
+#  ────────────────────────────────────────────────────────────
+[tasks.fmt]
+toolchain = "nightly"
+description = "Format with rustfmt"
+command = "cargo"
+args = ["fmt", "--all"]
+dependencies = ["default::install-rustfmt"]
+#  ────────────────────────────────────────────────────────────
+[tasks.fmt_check]
+toolchain = "nightly"
+extend = "fmt"
+description = "Check format with rustfmt"
+args = ["fmt", "--all", "--", "--check"]
+#  ────────────────────────────────────────────────────────────
+[tasks.install_cargo_watch]
+install_crate = { crate_name = "cargo-watch", binary = "cargo", test_arg = [
+    "watch",
+    "--help",
+] }
+private = true
+#  ────────────────────────────────────────────────────────────
+[tasks.test]
+description = "test single workspaces"
+install_crate = { crate_name = "cargo-workspaces", binary = "cargo", test_arg = [
+    "workspaces",
+    "--help",
+] }
+script = '''
+cargo watch -cx "test --package $(cargo workspaces list | fzf) -- --nocapture"
+'''
+dependencies = ["install_cargo_watch"]
+#  ────────────────────────────────────────────────────────────
+[tasks.test_all]
+description = "run all tests"
+command = "cargo"
+args = ["test", "--workspace"]
+#  ────────────────────────────────────────────────────────────
+[tasks.verify]
+description = "Format, lint with Clippy, run tests, simulate publish"
+dependencies = ["fmt", "clippy", "publish_dry_run"]
+#  ────────────────────────────────────────────────────────────
+[tasks.publish_dry_run]
+description = "Check the crate can be published"
+command = "cargo"
+args = ["publish", "--dry-run", "--allow-dirty"]
+#  ────────────────────────────────────────────────────────────
