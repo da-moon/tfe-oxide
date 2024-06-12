@@ -1,7 +1,7 @@
 # tfe-oxide
 
 
-<h1 align="center">tfcctl</h1>
+<h1 align="center">tfe-oxide</h1>
 <div align="center"><p>
     <a href="https://github.com/da-moon/tfe-oxide/pulse">
       <img src="https://img.shields.io/github/last-commit/da-moon/tfe-oxide?color=%4dc71f&label=Last%20Commit&logo=github&style=flat-square"/>
