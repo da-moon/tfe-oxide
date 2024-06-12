@@ -8,10 +8,13 @@ devel
 expandtab
 fileencoding
 flaggable
+frontmatter
 goreleaser
+jsonapi
 Justfile
 karyfoundation
 kevinkyang
+madewithrust
 markdownlint
 nocapture
 onnimplementing
@@ -31,6 +34,7 @@ Toolchain
 Unimported
 unmarshal
 unmarshalled
+unstaged
 usermod
 VERYSECRET
 virtualbox

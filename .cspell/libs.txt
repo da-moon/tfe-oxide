@@ -4,6 +4,7 @@ getset
 miette
 mimalloc
 msrv
+remarkjs
 reqwest
 rustversion
 serdeutils

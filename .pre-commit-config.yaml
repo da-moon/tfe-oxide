@@ -1,67 +1,81 @@
 ---
-#  ╭──────────────────────────────────────────────────────────╮
-#  │                       installation                       │
-#  ╰──────────────────────────────────────────────────────────╯
-# pre-commit install
-# pre-commit install --install-hooks ;
-# yamllint disable rule:line-length
-# pre-commit install -t pre-commit -t pre-merge-commit -t prepare-commit-msg -t commit-msg -t post-commit -t post-checkout -t post-merge -t post-rewrite
-# ──────────────────────────────────────────────────────────
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
       - id: check-added-large-files
-        description: prevents giant files from being committed.
-        args: [--maxkb=1024]
+        args:
+          - --maxkb=1024
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: mixed-line-ending
-        description: replaces or checks mixed line ending.
-        args: [--fix=lf]
+        args:
+          - --fix=lf
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: trailing-whitespace
-        description: trims trailing whitespace.
-        args: [--markdown-linebreak-ext=md]
+        args:
+          - --markdown-linebreak-ext=md
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: detect-private-key
-        description: detects the presence of private keys.
         exclude: .gitleaks.toml
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-merge-conflict
-        description: checks for files that contain merge conflict
-          strings.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: fix-byte-order-marker
-        description: removes utf-8 byte order marker.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-case-conflict
-        description: |
-          checks for files that would conflict in case-insensitive filesystems.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-executables-have-shebangs
-        description: ensures that (non-binary) executables have
-          a shebang.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-shebang-scripts-are-executable
-        description: |
-          ensures that (non-binary) files with a shebang are executable
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-symlinks
-        description: checks for symlinks which do not point to
-          anything.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: destroyed-symlinks
-        description: |
-          detects symlinks which are changed to regular files with a content of
-          a path which that symlink was pointing to.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: end-of-file-fixer
-        description: |
-          ensures that a file is either empty, or ends with one newline.
+        description: >-
+          ensures that a file is either empty, or ends with one
+          newline.
       - id: check-json
       - id: check-toml
       - id: check-yaml
         exclude: .*docker-compose.*|.*gitlab-ci.*
-        args: [--allow-multiple-documents]
+        args:
+          - --allow-multiple-documents
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.16.0
     hooks:
       - id: commitlint
-        stages: [commit-msg]
-        additional_dependencies: ["@commitlint/config-conventional"]
+        stages:
+          - commit-msg
+        additional_dependencies:
+          - '@commitlint/config-conventional'
         name: Ensure commit messages follow Conventional Commit
           spec
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.40.0
+    rev: v0.41.0
     hooks:
       - id: markdownlint
         language_version: system
@@ -96,15 +110,17 @@ repos:
         description: >-
           Ensure commit messages are signed
   - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.18.2
+    rev: v8.18.3
     hooks:
       - id: gitleaks
-        description: Detect hardcoded secrets using Gitleaks
+        description: >-
+          Detect hardcoded secrets using Gitleaks
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
       - id: gitlint
-        description: Lint git commit messages.
+        description: >-
+          Lint git commit messages.
   - repo: https://github.com/pecigonzalo/pre-commit-shfmt
     rev: "v2.2.0"
     hooks:
@@ -130,7 +146,7 @@ repos:
         description: >-
           Lint and validate shell scripts
   - repo: https://github.com/google/yamlfmt
-    rev: v0.11.0
+    rev: v0.12.1
     hooks:
       - name: yamlfmt
         id: yamlfmt
@@ -144,7 +160,8 @@ repos:
     hooks:
       - id: yamllint
         name: yamllint
-        exclude: .*docker-compose.*|Taskfile.*.yaml|.*\.github\/workflows\/.*\.yml
+        exclude: |
+          .*docker-compose.*|Taskfile.*.yaml|.*\.github\/workflows\/.*\.yml
         args:
           - --format
           - parsable
@@ -152,9 +169,7 @@ repos:
         description: >-
           Ensure YAML files are valid
   - repo: https://github.com/crate-ci/typos
-    rev: v1.21.0
+    rev: v1.22.4
     hooks:
       - name: types
         id: typos
-        description: >-
-          Detect typos in the source code
