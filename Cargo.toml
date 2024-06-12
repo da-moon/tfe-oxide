@@ -1,8 +1,67 @@
 [package]
-name        = "tfe_oxide"
-version     = "0.1.0"
-edition     = "2021"
+name = "tfe_oxide"
+version = "0.1.0"
+edition = "2021"
 description = "HCP Terraform/Enterprise API Client/SDK"
-license     = "MPL-2.0"
+license = "MPL-2.0"
 
 [dependencies]
+
+human-panic = "1.2.2"
+mimalloc = "0.1.39"
+num_cpus = "1.16.0"
+atty = "0.2.14"
+
+async-trait = "0.1.77"
+tokio = { version = "1", features = ["full"] }
+base64 = "0.13.1"
+# ────────────────────────────────────────────────────────────
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.8"
+# ────────────────────────────────────────────────────────────
+miette = { version = "4.7.1", features = ["fancy"] }
+thiserror = "1.0"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = [
+    "smallvec",
+    "fmt",
+    "tracing-log",
+    "std",
+    "env-filter",
+    "json",
+] }
+# ────────────────────────────────────────────────────────────
+getset = "0.1.2"
+humantime = "2.1.0"
+humantime-serde = "1.1.1"
+zeroize = { version = "1.7.0", features = [
+    "zeroize_derive",
+    "derive",
+    "serde",
+] }
+regex = "1.10.2"
+# ────────────────────────────────────────────────────────────
+snapbox = "0.4.15"
+# ────────────────────────────────────────────────────────────
+reqwest = { version = "0.11.23", default-features = false, features = [
+    "rustls-tls",
+    "json",
+] }
+headers = "0.4.0"
+reqwest-middleware = "0.2.4"
+reqwest-retry = "0.3.0"
+retry-policies = "0.2.1"
+maybe-async = "0.2.7"
+rand = "0.8.5"
+serde_with = "3.7.0"
+
+[dev-dependencies]
+snapbox = "0.4.15" # NOTE: example https://github.com/rust-cli/human-panic/blob/master/tests/single-panic/tests/integration.rs
+
+# https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section
+[lints.rust]
+unused = "allow"
+
+[lints.clippy]
+enum_glob_use = "deny"
