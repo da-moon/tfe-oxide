@@ -1,0 +1,11 @@
+*                     linguist-vendored
+*                     export-ignore
+*.rs                  linguist-vendored=false
+*.rs                  linguist-detectable=falsee
+*.rs                  export-ignore=false
+README.md             export-ignore=false
+CHANGELOG.md          export-ignore=false
+Cargo.toml            export-ignore=false
+**/Cargo.toml         export-ignore=false
+Makefile.toml         export-ignore=false
+LICENSE               export-ignore=false
