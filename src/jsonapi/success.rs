@@ -49,6 +49,7 @@ pub struct Meta {
     #[serde(skip_serializing_if = "Option::is_none")]
     pagination: Option<Pagination>,
 }
+// ────────────────────────────────────────────────────────────
 /// This struct contains represents object that contains links relevant API resources
 #[derive(
     PartialEq, Debug, Clone, Default, Deserialize, Serialize, Getters,
@@ -68,3 +69,22 @@ pub struct Links {
     #[serde(skip_serializing_if = "Option::is_none")]
     related: Option<String>,
 }
+/// This struct contains the actual data of the response. In most cases, you
+/// want to only extract the data field from the response.
+#[derive(
+    PartialEq, Debug, Clone, Default, Deserialize, Serialize, Getters,
+)]
+#[getset(get = "pub with_prefix")]
+pub struct Data<ATTRIBUTES, RELATIONSHIPS> {
+    #[serde(rename = "type")]
+    pub _type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attributes: Option<ATTRIBUTES>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<Links>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub relationships: Option<RELATIONSHIPS>,
+}
+// ────────────────────────────────────────────────────────────
