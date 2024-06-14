@@ -10,8 +10,11 @@ pub enum Error {
     #[error("`{canonical_reason}`")]
     #[diagnostic(code(core::response))]
     Response {
+        /// short description of the error
         canonical_reason: String,
+        /// HTTP status code
         status: Option<String>,
+        /// Complete JSON response from the server
         body: Option<serde_json::Value>,
     },
 }
