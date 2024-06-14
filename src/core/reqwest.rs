@@ -205,7 +205,6 @@ impl super::HttpClient for Client {
     {
         let span: tracing::Span = tracing::span!(tracing::Level::INFO, "get");
         let _guard = span.enter();
-
         let response = self
             .exec::<_, serde_json::Value>(
                 Method::GET,
@@ -213,6 +212,8 @@ impl super::HttpClient for Client {
                 headers,
                 |req| {
                     if let Some(payload) = payload {
+                        // TODO: confirm that this does not override
+                        // content-type header
                         return req.query(payload);
                     }
                     req
@@ -223,19 +224,21 @@ impl super::HttpClient for Client {
                 // tracing::error!("\nServer Response Error:\n{:?}", &e);
                 e
             })?;
-        let result = serde_json::from_value(response).map_err(
+        let response: R = serde_json::from_value(response).map_err(
             |e: serde_json::Error| {
-                let mut canonical_reason = e.to_string();
+                let e: String = e.to_string().replace("\\", "");
+
                 let e = super::Error::Response {
-                    canonical_reason: canonical_reason,
-                    status: None,
+                    canonical_reason: e,
+                    status: Some(
+                        reqwest::StatusCode::BAD_REQUEST.as_str().to_string(),
+                    ),
                     body: None,
                 };
-                // tracing::error!("\nJSON Conversion Error:\n{:?}", &e);
                 return e;
             },
         )?;
-        Ok(result)
+        Ok(response)
     }
 
     #[inline]
@@ -261,28 +264,40 @@ impl super::HttpClient for Client {
         // })
         // .await
         // ─────────────────────────────────────────────────────────────────────────────
+        let span: tracing::Span = tracing::span!(tracing::Level::INFO, "post");
+        let _guard = span.enter();
+        tracing::trace!(
+            "\nRequest Payload Data:\n{}",
+            serde_json::to_string_pretty(&payload).unwrap()
+        );
         let response = self
             .exec::<_, serde_json::Value>(
                 Method::POST,
                 url.as_ref(),
                 headers,
-                |req| req.json(&payload),
+                |req| {
+                    req.body(reqwest::Body::from(
+                        serde_json::to_vec(&payload).unwrap(),
+                    ))
+                },
             )
             .await?;
 
-        let result = serde_json::from_value(response).map_err(
+        let response: R = serde_json::from_value(response).map_err(
             |e: serde_json::Error| {
-                let mut canonical_reason = e.to_string();
+                let e: String = e.to_string().replace("\\", "");
+
                 let e = super::Error::Response {
-                    canonical_reason: canonical_reason,
-                    status: None,
+                    canonical_reason: e,
+                    status: Some(
+                        reqwest::StatusCode::BAD_REQUEST.as_str().to_string(),
+                    ),
                     body: None,
                 };
-                // tracing::error!("\nJSON Conversion Error:\n{:?}", &e);
                 return e;
             },
         )?;
-        Ok(result)
+        Ok(response)
     }
     #[inline]
     async fn put<R, S, T>(
@@ -296,17 +311,40 @@ impl super::HttpClient for Client {
         S: AsRef<str> + Sync + Send,
         T: Serialize + Debug + Send + Sync,
     {
+        let span: tracing::Span = tracing::span!(tracing::Level::INFO, "put");
+        let _guard = span.enter();
+        tracing::trace!(
+            "\nRequest Payload Data:\n{}",
+            serde_json::to_string_pretty(&payload).unwrap()
+        );
         let response = self
             .exec::<_, serde_json::Value>(
                 Method::PUT,
                 url.as_ref(),
                 headers,
-                |req| req.json(&payload),
+                |req| {
+                    req.body(reqwest::Body::from(
+                        serde_json::to_vec(&payload).unwrap(),
+                    ))
+                },
             )
             .await?;
-        // FIXME: cannot be infallible
 
-        Ok(serde_json::from_value(response).expect("infallible"))
+        let response: R = serde_json::from_value(response).map_err(
+            |e: serde_json::Error| {
+                let e: String = e.to_string().replace("\\", "");
+
+                let e = super::Error::Response {
+                    canonical_reason: e,
+                    status: Some(
+                        reqwest::StatusCode::BAD_REQUEST.as_str().to_string(),
+                    ),
+                    body: None,
+                };
+                return e;
+            },
+        )?;
+        Ok(response)
     }
 
     #[inline]
@@ -346,9 +384,7 @@ impl super::HttpClient for Client {
             .await?;
         let response: R = serde_json::from_value(response).map_err(
             |e: serde_json::Error| {
-                // let e = e.to_string().as_str().trim_matches("1").to_string();
                 let e: String = e.to_string().replace("\\", "");
-
                 let e = super::Error::Response {
                     canonical_reason: e,
                     status: Some(
@@ -379,11 +415,27 @@ impl super::HttpClient for Client {
                 Method::DELETE,
                 url.as_ref(),
                 headers,
-                |req| req.json(&payload),
+                |req| {
+                    req.body(reqwest::Body::from(
+                        serde_json::to_vec(&payload).unwrap(),
+                    ))
+                },
             )
             .await?;
-        // FIXME: cannot be infallible
-        Ok(serde_json::from_value(response).expect("infallible"))
+        let response: R = serde_json::from_value(response).map_err(
+            |e: serde_json::Error| {
+                let e: String = e.to_string().replace("\\", "");
+                let e = super::Error::Response {
+                    canonical_reason: e,
+                    status: Some(
+                        reqwest::StatusCode::BAD_REQUEST.as_str().to_string(),
+                    ),
+                    body: None,
+                };
+                return e;
+            },
+        )?;
+        Ok(response)
     }
 }
 // ────────────────────────────────────────────────────────────
