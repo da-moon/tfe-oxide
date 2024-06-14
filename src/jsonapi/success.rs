@@ -38,3 +38,14 @@ pub struct Pagination {
     #[serde(skip_serializing_if = "Option::is_none")]
     next_page: Option<u32>,
 }
+/// This struct contains represents object that contains non-standard
+/// meta-information in a response
+#[derive(
+    PartialEq, Debug, Clone, Default, Deserialize, Serialize, Getters,
+)]
+#[getset(get = "pub with_prefix")]
+pub struct Meta {
+    // XXX: is pagination optional ?
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pagination: Option<Pagination>,
+}
