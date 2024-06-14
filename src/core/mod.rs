@@ -2,6 +2,9 @@
 /// making API calls.
 // TODO: maybe this should be private
 pub mod errors;
+/// This module implements HttpClient trait using reqwest
+// TODO: maybe this should be private
+pub mod reqwest;
 // ────────────────────────────────────────────────────────────
 use {
     serde::{de::DeserializeOwned, Serialize},
@@ -15,6 +18,10 @@ pub type Error = errors::Error;
 pub type Headers = std::collections::HashMap<String, String>;
 /// This represents query section of an HTTP request.
 pub type Query<'a> = std::collections::HashMap<&'a str, &'a str>;
+/// This represents Reqwest client implementation of HttpClient trait
+pub type ReqwestClient = crate::core::reqwest::Client;
+/// This is used to build a Reqwest client.
+pub type ReqwestClientBuilder = crate::core::reqwest::Builder;
 // ────────────────────────────────────────────────────────────
 /// This trait represents the interface to be implemented for an HTTP client,
 /// which is kept separate from the implementation.
