@@ -1,3 +1,27 @@
+//! This module implements a basic HTTP client that can be used to send requests to a server.
+//!
+//! # Examples
+//!
+//! Basic usage:
+//!
+//! ```
+//! [tokio::main]
+//! async fn main() {
+//!     let builder = crate::core::ReqwestClientBuilder::new();
+//!     let client = builder.build().unwrap();
+//!     let response: Result<serde_json::Value, crate::core::Error> =
+//!         client.get("wrongurl", None, None).await;
+//!     match response {
+//!         Ok(data) => println!("request succeeded: {:?}", data),
+//!         Err(crate::core::Error::Response {
+//!             canonical_reason, ..
+//!         }) => {
+//!             eprintln!("request failed: {}", canonical_reason)
+//!         }
+//!     };
+//! }
+//! ```
+
 /// This module implements possible error message(s) that might occur when
 /// making API calls.
 // TODO: maybe this should be private
