@@ -1,6 +1,6 @@
 [package]
 name = "tfe_oxide"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "HCP Terraform/Enterprise API Client/SDK"
 license = "MPL-2.0"
