@@ -60,7 +60,7 @@
 !/CHANGELOG.md
 !/RELEASE_CHECKLIST.md
 !.yamlfmt
-
+!/.gitpod.yml
 # Added by cargo
 
 /target
