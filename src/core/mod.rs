@@ -1,7 +1,34 @@
+//! This module implements a basic HTTP client that can be used to send requests to a server.
+//!
+//! # Examples
+//!
+//! Basic usage:
+//!
+//! ```
+//! [tokio::main]
+//! async fn main() {
+//!     let builder = crate::core::ReqwestClientBuilder::new();
+//!     let client = builder.build().unwrap();
+//!     let response: Result<serde_json::Value, crate::core::Error> =
+//!         client.get("wrongurl", None, None).await;
+//!     match response {
+//!         Ok(data) => println!("request succeeded: {:?}", data),
+//!         Err(crate::core::Error::Response {
+//!             canonical_reason, ..
+//!         }) => {
+//!             eprintln!("request failed: {}", canonical_reason)
+//!         }
+//!     };
+//! }
+//! ```
+
 /// This module implements possible error message(s) that might occur when
 /// making API calls.
 // TODO: maybe this should be private
 pub mod errors;
+/// This module implements HttpClient trait using reqwest
+// TODO: maybe this should be private
+pub mod reqwest;
 // ────────────────────────────────────────────────────────────
 use {
     serde::{de::DeserializeOwned, Serialize},
@@ -15,6 +42,10 @@ pub type Error = errors::Error;
 pub type Headers = std::collections::HashMap<String, String>;
 /// This represents query section of an HTTP request.
 pub type Query<'a> = std::collections::HashMap<&'a str, &'a str>;
+/// This represents Reqwest client implementation of HttpClient trait
+pub type ReqwestClient = crate::core::reqwest::Client;
+/// This is used to build a Reqwest client.
+pub type ReqwestClientBuilder = crate::core::reqwest::Builder;
 // ────────────────────────────────────────────────────────────
 /// This trait represents the interface to be implemented for an HTTP client,
 /// which is kept separate from the implementation.
