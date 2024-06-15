@@ -104,8 +104,8 @@ impl Display for Error {
     PartialEq, Clone, Default, Deserialize, Serialize, Getters, Debug,
 )]
 #[getset(get = "pub with_prefix")]
-pub(crate) struct Failure {
-    pub(crate) errors: Vec<Error>,
+pub struct Failure {
+    errors: Vec<Error>,
 }
 // ────────────────────────────────────────────────────────────
 impl Display for Failure {
@@ -123,6 +123,77 @@ impl Display for Failure {
         }
         write!(f, "]")?;
         Ok(())
+    }
+}
+impl From<serde_json::Value> for Failure {
+    /// Convert a JSON Value into a Failure object
+    fn from(arg: serde_json::Value) -> Self {
+        serde_json::from_value::<Failure>(arg).unwrap()
+    }
+}
+impl From<Failure> for serde_json::Value {
+    /// Convert a Failure object into a JSON Value
+    fn from(arg: Failure) -> Self {
+        serde_json::to_value(arg).unwrap()
+    }
+}
+
+impl TryFrom<crate::core::Error> for Failure {
+    type Error = Self;
+    /// Convert a `crate::core::Error` into a `Failure` object
+    fn try_from(value: crate::core::Error) -> Result<Self, Self::Error> {
+        let span = tracing::span!(tracing::Level::INFO, "Failure");
+        let _guard = span.enter();
+
+        let span = tracing::span!(tracing::Level::INFO, "try_from");
+        let _guard = span.enter();
+
+        // NOTE: deconstruct value into `crate::core::Error::Response` and extract the
+        // fields
+        let (canonical_reason, status, body) = match value {
+            crate::core::Error::Response {
+                canonical_reason,
+                status,
+                body,
+            } => (canonical_reason, status, body),
+        };
+
+        if body.is_some() {
+            let span: tracing::Span =
+                tracing::span!(tracing::Level::INFO, "JSON Conversion");
+
+            let _guard = span.enter();
+            tracing::trace!("\nunwrapping body");
+
+            let body = body.unwrap();
+            return Err(serde_json::from_value::<Failure>(body).map_err(
+                |e: serde_json::Error| {
+                    let e = Failure {
+                        errors: vec![Error {
+                            status: "400".to_string(),
+                            title: e.to_string(),
+                            ..Default::default()
+                        }],
+                    };
+                    // tracing::error!("\n{:?}", &e);
+                    return e;
+                },
+            )?);
+        }
+
+        // NOTE: do not put a tracing::error!(...) for this error as it can lead
+        // to duplicate log entries
+        let e = Failure {
+            errors: vec![Error {
+                status: status.unwrap_or("400".to_string()),
+                title: canonical_reason,
+                ..Default::default()
+            }],
+        };
+        let msg: String = serde_json::to_string_pretty(&e).unwrap();
+        let msg: String = msg.replace("\\\"", "\"");
+        tracing::error!("\nforming failure response array:\n{}", msg);
+        return Err(e);
     }
 }
 

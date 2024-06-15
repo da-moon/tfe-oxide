@@ -20,6 +20,7 @@ pub type Success<ATTRIBUTES, RELATIONSHIPS> =
 pub type ErrorLinks = failure::Links;
 pub type ErrorSource = failure::Source;
 pub type Error = failure::Error;
+pub type Failure = failure::Failure;
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
 // code: language=rust insertSpaces=true tabSize=4
