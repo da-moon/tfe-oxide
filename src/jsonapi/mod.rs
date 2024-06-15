@@ -3,7 +3,7 @@
 //! The JSON:API specification is available at [jsonapi.org](https://jsonapi.org/).
 
 /// This module contains objects that make up a failed JSON:API response.
-pub mod failure;
+pub mod error;
 /// This module contains objects that make up a successful JSON:API response.
 pub mod success;
 // ────────────────────────────────────────────────────────────
@@ -17,8 +17,9 @@ pub type Data<ATTRIBUTES, RELATIONSHIPS> =
 pub type Success<ATTRIBUTES, RELATIONSHIPS> =
     success::Success<ATTRIBUTES, RELATIONSHIPS>;
 // ────────────────────────────────────────────────────────────
-pub type ErrorLinks = failure::ErrorLinks;
-pub type ErrorSource = failure::ErrorSource;
+pub type ErrorLinks = error::Links;
+pub type ErrorSource = error::Source;
+pub type Error = error::Error;
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
 // code: language=rust insertSpaces=true tabSize=4
