@@ -94,6 +94,19 @@ impl Display for Error {
         Ok(())
     }
 }
+
+// ────────────────────────────────────────────────────────────
+/// This Error type is what gets returned from Terraform Cloud APIs.
+///
+/// It seems like the response is always an array with
+/// a single JSON API error object.
+#[derive(
+    PartialEq, Clone, Default, Deserialize, Serialize, Getters, Debug,
+)]
+#[getset(get = "pub with_prefix")]
+pub(crate) struct Failure {
+    pub(crate) errors: Vec<Error>,
+}
 #[cfg(test)]
 mod tests {
     use std::any::Any;
@@ -185,6 +198,7 @@ mod tests {
         let actual = input.to_string();
         assert_eq!(expected, actual);
     }
+    // ────────────────────────────────────────────────────────────
 }
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
