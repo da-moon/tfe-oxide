@@ -201,8 +201,8 @@ impl TryFrom<crate::core::Error> for Failure {
 mod tests {
     use std::any::Any;
 
-    // cargo test --all-targets -- "jsonapi::error::tests" --nocapture
-    // cargo watch -cx 'test --all-targets -- "jsonapi::error::tests" --nocapture'
+    // cargo test --all-targets -- "jsonapi::failure::tests" --nocapture
+    // cargo watch -cx 'test --all-targets -- "jsonapi::failure::tests" --nocapture'
     use snapbox::{assert_eq, assert_eq_path};
     #[test]
     fn test_single_error() {
@@ -289,6 +289,53 @@ mod tests {
         assert_eq!(expected, actual);
     }
     // ────────────────────────────────────────────────────────────
+    #[test]
+    fn test_failure_with_no_errors() {
+        let input = crate::jsonapi::Failure { errors: vec![] };
+        let expected = "No errors.";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+    #[test]
+    fn test_failure_with_single_error() {
+        let input = crate::jsonapi::Failure {
+            errors: vec![crate::jsonapi::Error {
+                id: Some("1".to_string()),
+                status: "404".to_string(),
+                title: "Not Found".to_string(),
+                detail: Some("Resource not found".to_string()),
+                ..Default::default()
+            }],
+        };
+        let expected = "Failure: [Error(404): Not Found. Resource not found.]";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_failure_with_multiple_errors() {
+        let input = crate::jsonapi::Failure {
+            errors: vec![
+                crate::jsonapi::Error {
+                    id: Some("1".to_string()),
+                    status: "404".to_string(),
+                    title: "Not Found".to_string(),
+                    detail: Some("Resource not found".to_string()),
+                    ..Default::default()
+                },
+                crate::jsonapi::Error {
+                    id: Some("2".to_string()),
+                    status: "500".to_string(),
+                    title: "Server Error".to_string(),
+                    detail: Some("Unexpected server error".to_string()),
+                    ..Default::default()
+                },
+            ],
+        };
+        let expected = "Failure: [Error(404): Not Found. Resource not found., Error(500): Server Error. Unexpected server error.]";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
 }
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
