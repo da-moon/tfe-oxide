@@ -72,7 +72,28 @@ pub struct Error {
     #[serde(skip_serializing_if = "Option::is_none")]
     source: Option<Source>,
 }
-
+// ────────────────────────────────────────────────────────────
+impl Display for Error {
+    /// helps with pretty printing the error as string
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let status = self.get_status();
+        let title = self.get_title().trim();
+        let title = title.trim_start_matches('.').trim_end_matches('.');
+        write!(f, "Error({})", status)?;
+        if title.len() > 0 || self.get_detail().is_some() {
+            write!(f, ":")?;
+        }
+        if title.len() > 0 {
+            write!(f, " {}.", title)?;
+        }
+        if self.get_detail().is_some() {
+            let detail: &String = self.get_detail().as_ref().unwrap();
+            let detail = detail.trim_start_matches('.').trim_end_matches('.');
+            write!(f, " {}.", detail)?;
+        }
+        Ok(())
+    }
+}
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
 // code: language=rust insertSpaces=true tabSize=4
