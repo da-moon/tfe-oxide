@@ -28,6 +28,7 @@ tasks:
   - name: setup-github-ssh-key
     openMode: tab-before
     command: |
+      eval "$(gp env --export)" ;
       [ ! -d "${HOME}/.ssh" ] && mkdir "${HOME}/.ssh" ;
       if [ -n "${GITHUB_PRIVATE_KEY+x}" ] \
         && [ -n "${GITHUB_PRIVATE_KEY}" ]; then
@@ -73,6 +74,7 @@ tasks:
   - name: git-config
     openMode: tab-before
     command: |
+      eval "$(gp env --export)" ;
       ( [ -n "${GITHUB_EMAIL+x}" ] \
         && [ -n "${GITHUB_EMAIL}" ] \
         && git config --global user.email "${GITHUB_EMAIL}" \
