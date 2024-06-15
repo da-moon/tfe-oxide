@@ -107,6 +107,25 @@ impl Display for Error {
 pub(crate) struct Failure {
     pub(crate) errors: Vec<Error>,
 }
+// ────────────────────────────────────────────────────────────
+impl Display for Failure {
+    /// helps with pretty printing the server response as string
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.get_errors().len() == 0 {
+            return write!(f, "No errors.");
+        }
+        write!(f, "Failure: [")?;
+        for (idx, elem) in (&self.errors).into_iter().enumerate() {
+            write!(f, "{}", elem)?;
+            if idx != self.errors.len() - 1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f, "]")?;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::any::Any;
