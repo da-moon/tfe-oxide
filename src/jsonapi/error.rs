@@ -94,6 +94,98 @@ impl Display for Error {
         Ok(())
     }
 }
+#[cfg(test)]
+mod tests {
+    use std::any::Any;
+
+    // cargo test --all-targets -- "jsonapi::error::tests" --nocapture
+    // cargo watch -cx 'test --all-targets -- "jsonapi::error::tests" --nocapture'
+    use snapbox::{assert_eq, assert_eq_path};
+    #[test]
+    fn test_single_error() {
+        let input: crate::jsonapi::Error = crate::jsonapi::Error {
+            title: "not found".to_string(),
+            detail: None,
+            status: "404".to_string(),
+            ..Default::default()
+        };
+        let expected = "Error(404): not found.";
+        let actual = input.to_string();
+        assert_eq(expected, actual);
+    }
+    #[test]
+    fn test_error_with_detail() {
+        let input = crate::jsonapi::Error {
+            title: "not found".to_string(),
+            detail: Some(
+                "The requested resource could not be found.".to_string(),
+            ),
+            status: "404".to_string(),
+            ..Default::default()
+        };
+        let expected =
+            "Error(404): not found. The requested resource could not be found.";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_error_without_title() {
+        let input = crate::jsonapi::Error {
+            title: "".to_string(),
+            detail: Some(
+                "The requested resource could not be found.".to_string(),
+            ),
+            status: "404".to_string(),
+            ..Default::default()
+        };
+        let expected =
+            "Error(404): The requested resource could not be found.";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_error_without_detail() {
+        let input = crate::jsonapi::Error {
+            title: "not found".to_string(),
+            status: "404".to_string(),
+            ..Default::default()
+        };
+        let expected = "Error(404): not found.";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn test_error_without_title_and_detail() {
+        let input = crate::jsonapi::Error {
+            title: "".to_string(),
+            status: "404".to_string(),
+            ..Default::default()
+        };
+        let expected = "Error(404)";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+    #[test]
+    fn test_error_with_source_pointer() {
+        let input = crate::jsonapi::Error {
+            title: "invalid attribute".to_string(),
+            detail: Some("Name has already been taken".to_string()),
+            status: "422".to_string(),
+            source: Some(crate::jsonapi::ErrorSource {
+                pointer: Some("/data/attributes/name".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let expected =
+            "Error(422): invalid attribute. Name has already been taken.";
+        let actual = input.to_string();
+        assert_eq!(expected, actual);
+    }
+}
 // ────────────────────────────────────────────────────────────
 // vim: filetype=rust syntax=rust softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79 fileencoding=utf-8 expandtab
 // code: language=rust insertSpaces=true tabSize=4
